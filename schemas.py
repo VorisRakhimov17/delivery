@@ -27,5 +27,6 @@ class Settings(BaseModel):
 
 
 class LoginModel(BaseModel):
-    username: str
+    username_or_email: str
     password: str
+

@@ -3,6 +3,7 @@ import secrets
 from fastapi import Depends, FastAPI, HTTPException, APIRouter, status
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
+from sqlalchemy import or_
 from schemas import SignupModel, LoginModel
 from database import session, engine
 from models import User
@@ -62,7 +63,18 @@ async def signup(user: SignupModel):
 
 @auth_router.post("/login", status_code=200)
 async def login(user: LoginModel,  Authorize: AuthJWT=Depends()):
-    db_user = session.query(User).filter(User.username == user.username).first()
+
+    # db_user = session.query(User).filter(User.username == user.username,).first()
+
+    # query ni email va username orqali yozish
+
+    db_user = session.query(User).filter(
+        or_(
+            User.username == user.username_or_email,
+            User.email == user.username_or_email
+        )
+    ).first()
+
     if db_user and check_password_hash(db_user.password, user.password):
         access_token = Authorize.create_access_token(subject=user.username)
         refresh_token = Authorize.create_refresh_token(subject=user.username)
