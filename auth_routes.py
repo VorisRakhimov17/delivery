@@ -18,7 +18,11 @@ session = session(bind=engine)
 
 
 @auth_router.get("/")
-async def signup():
+async def signup(Authorize: AuthJWT = Depends()):
+    try:
+        Authorize.jwt_required()
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token kiritilmadi")
     return {"message": "Bu auth route signup sahifasi"}
 
 
